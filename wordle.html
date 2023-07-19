@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Not wordle</title>
+        <script src="dictionary.js"></script>
+        <script>
+            let wc = d.length;
+            let cw = d[Math.floor(Math.random() * wc)];
+            let r = 0;
+            let c = 0;
+            function kpe(e) {
+                if ([..."qwertyuiopasdfghjklzxcvbnm"].indexOf(e.key.toLowerCase()) > -1) {
+                    kp(e.key.toUpperCase());
+                }
+                if (["Enter", "Backspace"].indexOf(e.key) > -1) {
+                    kp(e.key);
+                }
+            }
+            function kp(key) {
+                document.getElementById("naw").style.display = "none";
+                if (key === "Enter") {
+                    if (c < 5) {
+                        return;
+                    }
+                    check();
+                    return;
+                }
+                let ls = document.getElementById(r.toString()).getElementsByTagName("span");
+                if (key === "Backspace") {
+                    if (c === 0) {
+                        return;
+                    }
+                    c--;
+                    ls[c].innerHTML = "&nbsp;";
+                    return;
+                }
+                if (c === 5) {
+                    return;
+                }
+                ls[c].innerHTML = key;
+                c++;
+            }
+            function check() {
+                let row = document.getElementById(r.toString());
+                let spans = row.getElementsByTagName("span");
+                let guess = [];
+                for (let i = 0; i < 5; i++) {
+                    guess.push(spans[i].innerHTML.toLowerCase());
+                }
+                if (d.indexOf(guess.join("")) === -1) {
+                    document.getElementById("naw").style.display = "block";
+                    return;
+                }
+                let as = [];
+                let lc, lc2;
+                for (let i = 0; i < 5; i++) {
+                    if (cw.indexOf(guess[i]) === -1) {
+                        as.push("b");
+                        document.getElementById("k" + guess[i]).className = "b";
+                        continue;
+                    }
+                    if (cw.indexOf(guess[i]) > -1 && cw[i] !== guess[i]) {
+                        lc = 0;
+                        lc2 = 0;
+                        for (let j = 0; j < i; j++) {
+                            if (as[j][1] === guess[i]) {
+                                lc++;
+                            }
+                        }
+                        for (let j = 0; j < 5; j++) {
+                            if (cw[j] === guess[i]) {
+                                lc2++;
+                            }
+                        }
+                        if (lc2 <= lc) {
+                            as.push("b");
+                            continue;
+                        }
+                        as.push("y" + guess[i]);
+                        continue;
+                    }
+                    as.push("g" + guess[i]);
+                    lc = 0;
+                    lc2 = 0;
+                    for (let j = 0; j <= i; j++) {
+                        if (as[j][1] === guess[i]) {
+                            lc++;
+                        }
+                    }
+                    for (let j = 0; j < 5; j++) {
+                        if (cw[j] === guess[i]) {
+                            lc2++;
+                        }
+                    }
+                    if (lc > lc2) {
+                        for (let j = i; j >= 0; j--) {
+                            if (as[j] === "y" + guess[i]) {
+                                as[j] = "b";
+                            }
+                        }
+                    }
+                }
+                for (let i = 0; i < 5; i++) {
+                    if (as[i][1] !== undefined && document.getElementById("k" + as[i][1]).className !== "g") {
+                        document.getElementById("k" + as[i][1]).className = as[i][0];
+                    }
+                    as[i] = as[i][0];
+                    spans[i].className = as[i];
+                }
+                if (JSON.stringify(as) === JSON.stringify([..."ggggg"])) {
+                    document.getElementById("keyboard").innerHTML = "You win!";
+                    return;
+                }
+                r++;
+                c = 0;
+                if (r === 6) {
+                    document.getElementById("keyboard").innerHTML = "You lose. The word was " + cw + ".";
+                    document.removeEventListener("keydown", kpe);
+                }
+            }
+            document.addEventListener("keydown", kpe);
+        </script>
+        <style>
+            body
+            {
+                text-align: center;
+            }
+            div
+            {
+                text-align: center;
+            }
+            #naw
+            {
+                color: red;
+                display: none;
+            }
+            div p span
+            {
+                display: inline-block;
+                height: 20px;
+                font-size: 15px;
+                max-height: 20px;
+                min-width: 20px;
+                min-height: 20px;
+                border: 1px solid black;
+                margin: 5px;
+                text-align: center;
+            }
+            .b
+            {
+                background-color: #3d3d3d;
+                color: white;
+            }
+            .w
+            {
+                background-color: white;
+                color: black;
+            }
+            .y
+            {
+                background-color: yellow;
+                color: black;
+            }
+            .g
+            {
+                background-color: lime;
+                color: black;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="grid"></div>
+        <div id="keyboard"></div>
+        <p id="naw">Not a word.</p>
+        <script>
+            let grid = document.getElementById("grid");
+            let cr;
+            let cs;
+            for (let i = 0; i < 6; i++) {
+                cr = document.createElement("p");
+                cr.id = i.toString();
+                for (let j = 0; j < 5; j++) {
+                    cs = document.createElement("span");
+                    cs.className = "w";
+                    cs.innerHTML = "&nbsp;";
+                    cr.appendChild(cs);
+                }
+                grid.appendChild(cr);
+            }
+            let kb = document.getElementById("keyboard");
+            let crt = [..."QWERTYUIOP"];
+            cr = document.createElement("p");
+            for (let i = 0; i < crt.length; i++) {
+                cs = document.createElement("span");
+                cs.innerHTML = crt[i];
+                cs.id = "k" + crt[i].toLowerCase();
+                cs.addEventListener("pointerdown", kp.bind(null, crt[i]));
+                cr.appendChild(cs);
+            }
+            kb.appendChild(cr);
+            crt = [..."ASDFGHJKL"];
+            cr = document.createElement("p");
+            for (let i = 0; i < crt.length; i++) {
+                cs = document.createElement("span");
+                cs.innerHTML = crt[i];
+                cs.id = "k" + crt[i].toLowerCase();
+                cs.addEventListener("pointerdown", kp.bind(null, crt[i]));
+                cr.appendChild(cs);
+            }
+            kb.appendChild(cr);
+            crt = [..."ZXCVBNM"];
+            cr = document.createElement("p");
+            for (let i = 0; i < crt.length; i++) {
+                cs = document.createElement("span");
+                cs.innerHTML = crt[i];
+                cs.id = "k" + crt[i].toLowerCase();
+                cs.addEventListener("pointerdown", kp.bind(null, crt[i]));
+                cr.appendChild(cs);
+            }
+            kb.appendChild(cr);
+            crt = ["Enter", "Backspace"];
+            cr = document.createElement("p");
+            for (let i = 0; i < crt.length; i++) {
+                cs = document.createElement("span");
+                cs.innerHTML = crt[i];
+                cs.id = "k" + crt[i].toLowerCase();
+                cs.addEventListener("pointerdown", kp.bind(null, crt[i]));
+                cr.appendChild(cs);
+            }
+            kb.appendChild(cr);
+        </script>
+    </body>
+</html>
