@@ -116,7 +116,7 @@
                 r++;
                 c = 0;
                 if (r === 6) {
-                    document.getElementById("keyboard").innerHTML = "You lose. The word was " + cw + ".";
+                    document.getElementById("keyboard").innerHTML = "You lose. The word was " + cw + ".<br><button onclick='location.reload();'>New game</button>";
                     document.removeEventListener("keydown", kpe);
                 }
             }
