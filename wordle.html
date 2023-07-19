@@ -110,7 +110,7 @@
                     spans[i].className = as[i];
                 }
                 if (JSON.stringify(as) === JSON.stringify([..."ggggg"])) {
-                    document.getElementById("keyboard").innerHTML = "You win!";
+                    document.getElementById("keyboard").innerHTML = "You win!<br><button onclick='location.reload();'>New game</button>";
                     return;
                 }
                 r++;
